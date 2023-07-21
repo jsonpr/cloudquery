@@ -1,7 +1,7 @@
 ---
 title: Misleading Service Limits in AWS and Complexities Managing Service Quotas
 tag: security
-date: 2023/07/06
+date: 2023/07/12
 description: >- 
 
 author: jsonkao
@@ -11,9 +11,52 @@ import { BlogHeader } from "../../components/BlogHeader"
 
 <BlogHeader/>
 
+When we were researching usage and resource limits in AWS, we noticed misleading service limits and complexities managing these limits via AWS Service Quotas.  
+
+Not all services are supported by AWS Service Quotas and this is not well-documented.  We discovered unsupported services and service limits and noticed that the experience for these service limits could be misleading and difficult to manage. 
+
+We uncovered these scenarios from testing and subsequently reaching out to AWS Support to confirm our suspicions.  In this post, we'll detail our experience with these service limits as we alluded to in our previous post on [managing service quotas](https://www.cloudquery.io/how-to-guides/aws-resource-limits-and-service-quotas).
+
+
 ## Overview
 
+### Use Case: S3 Buckets in an Account
+
+For this walkthrough, we used the Service Limit for S3 Buckets in an Account.  Today, AWS’s default Service Quota for S3 Buckets is 100 buckets per account.
+
+There are multiple scenarios on why someone may want to increase their S3 Bucket Limits including:
+
+- A SaaS Provider using a shared account to host customer information.  They may want a separate bucket and a KMS Key for each customer and thus may want over 100 buckets.
+- Within a large enterprise, an enterprise common shared infrastructure account.  Their needs may be larger and they may need more than 100 buckets.
+- Data teams or teams managing data lakes may use multiple buckets for their data processing.  For these reasons, they may also need more than 100 buckets.
+
+
+```
+aws service-quotas get-aws-default-service-quota --service-code s3 --quota-code L-DC2B2D3D
+{
+    "Quota": {
+        "ServiceCode": "s3",
+        "ServiceName": "Amazon Simple Storage Service (Amazon S3)",
+        "QuotaArn": "arn:aws:servicequotas:us-east-1::s3/L-DC2B2D3D",
+        "QuotaCode": "L-DC2B2D3D",
+        "QuotaName": "Buckets",
+        "Value": 100.0,
+        "Unit": "None",
+        "Adjustable": true,
+        "GlobalQuota": false
+    }
+}
+```
+
 ### Background 
+
+In 2019, AWS introduced [Service Quotas[(https://aws.amazon.com/blogs/mt/introducing-service-quotas-view-and-manage-your-quotas-for-aws-services-from-one-central-location/), a new service to help with managing these limits from a central location.
+
+## Wishlist for AWS
+* Increased Support for Service Limits
+* Common APIs for Visibility 
+* Documentation detailing supported and unsupported Service Limits
+
 
 ## Conclusion
 
